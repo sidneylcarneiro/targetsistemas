@@ -65,7 +65,7 @@ python targetsistemas3.py
 ```
 Menor valor de faturamento: R$22174.17
 Maior valor de faturamento: R$42889.23
-Dias com faturamento acima da média: 5 dias
+Dias com faturamento acima da média: 1 dias
 ```
 
 ## targetsistemas4.py
