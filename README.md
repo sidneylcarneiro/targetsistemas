@@ -11,134 +11,221 @@ Este repositório contém cinco scripts em Python que resolvem diferentes desafi
 3. [targetsistemas3.py](#targetsistemas3py)
 4. [targetsistemas4.py](#targetsistemas4py)
 5. [targetsistemas5.py](#targetsistemas5py)
-6. [faturamento.txt](#faturamentotxt)
-7. [faturamento.json](#faturamentojson)
 
 ## targetsistemas1.py
 
-Este script calcula a soma dos números inteiros de 1 a 13. A variável `INDICE` é definida como 13, e o loop soma cada valor de 1 até `INDICE`.
+### Descrição
 
-**Execução:**
-```bash
-python targetsistemas1.py
+Este script realiza uma soma simples utilizando uma estrutura de repetição. A variável `SOMA` acumula a soma dos valores de 1 até o `INDICE` especificado.
+
+### Código
+
+```python
+INDICE = 13
+SOMA = 0
+K = 0
+
+while K < INDICE:
+    K += 1
+    SOMA += K
+    
+print(SOMA)
 ```
 
-**Saída esperada:**
+### Saída Esperada
+
 ```
 91
 ```
 
 ## targetsistemas2.py
 
-Este script contém duas funções principais:
-- `fibonacci(n)`: Gera uma sequência de Fibonacci até um número `n` especificado.
-- `pertence_a_fibonacci(n)`: Verifica se um número `n` pertence à sequência de Fibonacci.
+### Descrição
 
-**Execução:**
-```bash
-python targetsistemas2.py
+Este script contém duas funções principais: uma que gera uma sequência de Fibonacci até um determinado número `n` e outra que verifica se um número pertence à sequência de Fibonacci.
+
+### Código
+
+```python
+def fibonacci(n):
+    sequencia = [0, 1]
+    while sequencia[-1] < n:
+        next_value = sequencia[-1] + sequencia[-2]
+        sequencia.append(next_value)
+    return sequencia
+
+def pertence_a_fibonacci(n):
+    sequencia = fibonacci(n)
+    if n in sequencia:
+        return f"O número {n} pertence à sequência de Fibonacci."
+    else:
+        return f"O número {n} não pertence à sequência de Fibonacci."
+
+numero = int(input("Informe um número: "))
+mensagem = pertence_a_fibonacci(numero)
+print(mensagem)
 ```
 
-**Entrada esperada:**
-```
-Informe um número: 21
-```
+### Exemplo de Uso
 
-**Saída esperada:**
 ```
-O número 21 pertence à sequência de Fibonacci.
+Informe um número: 8
+O número 8 pertence à sequência de Fibonacci.
 ```
 
 ## targetsistemas3.py
 
-Este script lê os dados de faturamento diário de um arquivo JSON e realiza as seguintes operações:
-- Calcula o menor e maior valor de faturamento.
-- Calcula a média mensal de faturamento.
-- Conta quantos dias tiveram faturamento acima da média mensal.
+### Descrição
 
-**Execução:**
-```bash
-python targetsistemas3.py
+Este script carrega dados de faturamento diário a partir de arquivos JSON ou XML, calcula o menor e maior valor de faturamento, e o número de dias em que o faturamento foi superior à média mensal.
+
+### Código
+
+```python
+import json
+import xml.etree.ElementTree as ET
+
+# Função para carregar dados do arquivo JSON
+def carregar_dados_json(caminho_arquivo):
+    with open(caminho_arquivo, 'r') as file:
+        return json.load(file)
+
+# Função para carregar dados do arquivo XML
+def carregar_dados_xml(caminho_arquivo):
+    tree = ET.parse(caminho_arquivo)
+    root = tree.getroot()
+
+    dados = []
+    for row in root.findall('row'):
+        dia = int(row.find('dia').text)
+        valor = float(row.find('valor').text)
+        dados.append({"dia": dia, "valor": valor})
+
+    return dados
+
+# Carregar os dados do arquivo adequado
+try:
+    # Tente carregar do arquivo JSON
+    faturamento = carregar_dados_json('faturamento.json')
+except json.JSONDecodeError:
+    # Se falhar, tente carregar do arquivo XML
+    faturamento = carregar_dados_xml('faturamento.xml')
+
+# Filtrar os dias com faturamento maior que 0
+valores = [dia["valor"] for dia in faturamento if dia["valor"] > 0]
+
+# Calcular o menor e maior faturamento
+menor_faturamento = min(valores)
+maior_faturamento = max(valores)
+
+# Calcular a média mensal
+media_mensal = sum(valores) / len(valores)
+
+# Contar os dias com faturamento acima da média mensal
+dias_acima_da_media = sum(1 for valor in valores if valor > media_mensal)
+
+# Exibir os resultados
+print(f"Menor valor de faturamento: R${menor_faturamento:.2f}")
+print(f"Maior valor de faturamento: R${maior_faturamento:.2f}")
+print(f"Dias com faturamento acima da média: {dias_acima_da_media} dias")
 ```
 
-**Saída esperada:**
+### Exemplo de Uso
+
+O script lê os dados dos arquivos `faturamento.json` ou `faturamento.xml` e imprime os resultados:
+
 ```
-Menor valor de faturamento: R$22174.17
-Maior valor de faturamento: R$42889.23
-Dias com faturamento acima da média: 1 dias
+Menor valor de faturamento: R$373.78
+Maior valor de faturamento: R$48924.24
+Dias com faturamento acima da média: 10 dias
 ```
+
+### Arquivos de Dados
+
+- `faturamento.json`: Contém os dados de faturamento diário em formato JSON.
+- `faturamento.xml`: Contém os dados de faturamento diário em formato XML.
 
 ## targetsistemas4.py
 
-Este script lê um arquivo de texto com os valores de faturamento por estado e calcula o percentual que cada estado representa do total.
+### Descrição
 
-**Execução:**
-```bash
-python targetsistemas4.py
+Este script lê os dados de faturamento por estado a partir de um arquivo TXT e calcula o percentual de contribuição de cada estado em relação ao total.
+
+### Código
+
+```python
+# Função para calcular o percentual de cada estado
+def calcular_percentuais(faturamentos):
+    total = sum(faturamentos.values())
+    percentuais = {estado: (valor / total) * 100 for estado, valor in faturamentos.items()}
+    return percentuais
+
+# Função para ler os dados do arquivo TXT
+def ler_faturamentos(arquivo):
+    faturamentos = {}
+    with open(arquivo, 'r') as file:
+        for linha in file:
+            estado, valor = linha.split()
+            faturamentos[estado] = float(valor)
+    return faturamentos
+
+# Caminho do arquivo TXT
+arquivo = 'faturamento.txt'
+
+# Ler os faturamentos do arquivo
+faturamentos = ler_faturamentos(arquivo)
+
+# Calcular os percentuais
+percentuais = calcular_percentuais(faturamentos)
+
+# Exibir os resultados
+for estado, percentual in percentuais.items():
+    print(f'{estado}: {percentual:.2f}%')
 ```
 
-**Saída esperada:**
+### Exemplo de Uso
+
+O script lê os dados de `faturamento.txt` e exibe o percentual de cada estado:
+
 ```
 SP: 37.53%
 RJ: 20.29%
-MG: 16.18%
-ES: 15.05%
-Outros: 10.96%
+MG: 16.17%
+ES: 15.03%
+Outros: 11.00%
 ```
+
+### Arquivo de Dados
+
+- `faturamento.txt`: Contém os dados de faturamento por estado.
 
 ## targetsistemas5.py
 
+### Descrição
+
 Este script inverte uma string fornecida pelo usuário.
 
-**Execução:**
-```bash
-python targetsistemas5.py
+### Código
+
+```python
+# String previamente definida
+string_original = input("Digite um texto aqui: ")
+
+# Inicializa a string invertida como uma string vazia
+string_invertida = ""
+
+# Percorre a string original de trás para frente
+for i in range(len(string_original) - 1, -1, -1):
+    string_invertida += string_original[i]
+
+print("String Original:", string_original)
+print("String Invertida:", string_invertida)
 ```
 
-**Entrada esperada:**
+### Exemplo de Uso
+
 ```
-Digite um texto aqui: Target Sistemas
+Digite um texto aqui: Python
+String Original: Python
+String Invertida: nohtyP
 ```
-
-**Saída esperada:**
-```
-String Original: Target Sistemas
-String Invertida: sametsiS tegraT
-```
-
-## faturamento.txt
-
-Contém os valores de faturamento por estado. Este arquivo é utilizado no script `targetsistemas4.py`.
-
-**Formato:**
-```
-SP 67836.43
-RJ 36678.66
-MG 29229.88
-ES 27165.48
-Outros 19849.53
-```
-
-## faturamento.json
-
-Contém os valores de faturamento diário. Este arquivo é utilizado no script `targetsistemas3.py`.
-
-**Formato:**
-```json
-[
-    {"dia": 1, "valor": 22174.1664},
-    {"dia": 2, "valor": 24537.6698},
-    {"dia": 3, "valor": 26139.6134},
-    {"dia": 4, "valor": 0.0},
-    {"dia": 5, "valor": 0.0},
-    {"dia": 6, "valor": 26742.6612},
-    {"dia": 7, "valor": 0.0},
-    {"dia": 8, "valor": 42889.2258}
-]
-```
-
-## Licença
-
-Este projeto é licenciado sob os termos da licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
-```
-

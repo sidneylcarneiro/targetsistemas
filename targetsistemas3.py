@@ -1,8 +1,31 @@
 import json
+import xml.etree.ElementTree as ET
 
-# Carregar os dados do JSON
-with open('faturamento.json', 'r') as file:
-    faturamento = json.load(file)
+# Função para carregar dados do arquivo JSON
+def carregar_dados_json(caminho_arquivo):
+    with open(caminho_arquivo, 'r') as file:
+        return json.load(file)
+
+# Função para carregar dados do arquivo XML
+def carregar_dados_xml(caminho_arquivo):
+    tree = ET.parse(caminho_arquivo)
+    root = tree.getroot()
+
+    dados = []
+    for row in root.findall('row'):
+        dia = int(row.find('dia').text)
+        valor = float(row.find('valor').text)
+        dados.append({"dia": dia, "valor": valor})
+
+    return dados
+
+# Carregar os dados do arquivo adequado
+try:
+    # Tente carregar do arquivo JSON
+    faturamento = carregar_dados_json('faturamento.json')
+except json.JSONDecodeError:
+    # Se falhar, tente carregar do arquivo XML
+    faturamento = carregar_dados_xml('faturamento.xml')
 
 # Filtrar os dias com faturamento maior que 0
 valores = [dia["valor"] for dia in faturamento if dia["valor"] > 0]
